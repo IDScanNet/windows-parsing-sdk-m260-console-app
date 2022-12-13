@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Nautilus;
+using System;
 using System.IO;
 using System.IO.Ports;
-using System.Threading;
-using Nautilus;
 
 public class PortChat
 {
@@ -14,7 +13,8 @@ public class PortChat
     public static void Main()
     {
         string message;
-       
+        DriverLicense dl = new DriverLicense();
+
         StringComparer stringComparer = StringComparer.OrdinalIgnoreCase;
 
         // Create a new SerialPort object with default settings.
@@ -27,23 +27,17 @@ public class PortChat
         _serialPort.DataBits = 8;
         _serialPort.StopBits = StopBits.One;
         _serialPort.Handshake = Handshake.None;
-
         // Set the read/write timeouts
         _serialPort.ReadTimeout = 500;
         _serialPort.WriteTimeout = 500;
 
         _serialPort.Open();
-        //_serialPort.DataReceived += serialPort_DataReceived;
+        _serialPort.DataReceived += serialPort_DataReceived;
         buffer = string.Empty;
 
         _continue = true;
 
-        file = new StreamWriter("drivers-license.txt", append: true );
-        file.AutoFlush = true;
-
-        // note
-        Thread readThread = new Thread(Read);
-        readThread.Start();
+        file = new StreamWriter("drivers-license.txt", append: true);
 
         Console.WriteLine("Type Parse to parse the ID");
 
@@ -55,7 +49,6 @@ public class PortChat
             {
                 file.Close();
                 string text = System.IO.File.ReadAllText("drivers-license.txt");
-                DriverLicense dl = new DriverLicense();
                 dl.ExtractInfo(text);
 
                 Console.Out.WriteLine(dl.FullName);
@@ -63,32 +56,18 @@ public class PortChat
                 Console.Out.WriteLine(dl.LastName);
                 Console.Out.WriteLine(dl.IssueDate);
                 Console.Out.WriteLine(dl.ExpirationDate);
-                
+
 
 
             }
-            else 
+            else
             {
-                _serialPort.WriteLine(String.Format(" {0} ", message));
+                _serialPort.WriteLine(message);
             }
         }
-
-        readThread.Join();
         _serialPort.Close();
     }
 
-    public static void Read()
-    {
-        while (_continue)
-        {
-            try
-            {
-                string message = _serialPort.ReadLine();
-                file.WriteLine(message);
-            }
-            catch (TimeoutException) { }
-        }
-    }
 
     public static string SetPortName(string defaultPortName)
     {
@@ -97,7 +76,7 @@ public class PortChat
         Console.WriteLine("Available Ports:");
         foreach (string s in SerialPort.GetPortNames())
         {
-            Console.WriteLine("   {0}", s);
+            Console.WriteLine("{0}", s);
         }
 
         Console.Write("Enter COM port value (Default: {0}): ", defaultPortName);
@@ -110,14 +89,14 @@ public class PortChat
         return portName;
     }
 
-    //public static void serialPort_DataReceived(object s, SerialDataReceivedEventArgs e)
-    //{
-    //    byte[] data = new byte[_serialPort.BytesToRead];
-    //    _serialPort.Read(data, 0, data.Length);
-    //    data.ToList().ForEach(b => recievedData.Enqueue(b));
-    //    processData();
-    //}
+    public static void serialPort_DataReceived(object s, SerialDataReceivedEventArgs e)
+    {
 
-
-
+        var message = _serialPort.ReadExisting();
+        foreach(char a in message)
+        {
+            file.Write(a);
+           
+        }
+    }
 }
