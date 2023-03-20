@@ -59,7 +59,6 @@ public class PortChat
                 Console.WriteLine($"\nVehicle Classification Code : {resDL.VehicleClassCode}");
                 Console.WriteLine($"\nCompliance Type: {resDL.ComplianceType}");
                 Console.WriteLine($"\nCountry : {resDL.Country}");
-                //  Console.WriteLine($"\nDiscretionary ID Number : {resDL.DiscretionaryIdNumber}");
                 Console.WriteLine($"\nDocument Type : {resDL.DocumentType}");
                 Console.WriteLine($"\nDocument Discriminator : {resDL.DocumentDiscriminator}");
                 Console.WriteLine($"\nEndorsment Code Description : {resDL.EndorsementCodeDescription}");
